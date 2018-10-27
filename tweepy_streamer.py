@@ -7,6 +7,9 @@ from tweepy import Stream
 import twitter_cred
 import numpy as np
 import pandas as pd
+# import matplotlib
+# matplotlib.use('Agg')
+from matplotlib import pyplot as plt
 
 class TwitterClient():
     def __init__(self, twitter_user=None):
@@ -81,7 +84,7 @@ class TwitterListener(StreamListener):
 class TweetAnalyzer():
     
     def tweets_to_data_frame(self, tweets):
-        df = pd.DataFrame(data=[tweet.text for tweet in tweets], columns=['Tweets'])
+        df = pd.DataFrame(data=[tweet.text for tweet in tweets], columns=['tweets'])
         df['id'] = np.array([tweet.id for tweet in tweets])
         df['len'] = np.array([len(tweet.text) for tweet in tweets])
         df['date'] = np.array([tweet.created_at for tweet in tweets])
@@ -96,7 +99,20 @@ if __name__ == "__main__":
     tweet_analyzer = TweetAnalyzer()
     api = twitter_client.get_twitter_client_api()
 
-    tweets = api.user_timeline(screen_name="realDonaldTrump", count=20)
+    tweets = api.user_timeline(screen_name="realDonaldTrump", count=200)
     
     df = tweet_analyzer.tweets_to_data_frame(tweets)
-    print(df.head(10))
+
+    # Get average length over all tweets
+    print(np.mean(df['len']))
+
+    # Get the number of likes for the most liked tweet
+    print(np.max(df['likes']))
+
+    # Get the number of retweets for the most retweeted tweet
+    print(np.max(df['retweets']))
+
+    # Time Series
+    time_likes = pd.Series(data=df['likes'].values, index=df['date'])
+    time_likes.plot(figsize=(16, 4), color='r')
+    plt.show()
