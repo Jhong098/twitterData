@@ -116,9 +116,16 @@ if __name__ == "__main__":
     tweets = api.user_timeline(screen_name="realDonaldTrump", count=200)
     
     df = tweet_analyzer.tweets_to_data_frame(tweets)
-    df['sentiment'] = np.array([tweet_analyzer.analyze_sentiment(tweet) for tweet in df['tweets']])
+    # time_likes = pd.Series(data=df['likes'].values, index=df['date'])
+    # time_likes.plot(figsize=(16, 4), label="likes", legend=True)
 
-    print(df.head(10))
+    # time_retweets = pd.Series(data=df['retweets'].values, index=df['date'])
+    # time_retweets.plot(figsize=(16, 4), label="retweets", legend=True)
+
+    # plt.show()
+    # df['sentiment'] = np.array([tweet_analyzer.analyze_sentiment(tweet) for tweet in df['tweets']])
+
+    # print(df.head(10))
 
 
     
