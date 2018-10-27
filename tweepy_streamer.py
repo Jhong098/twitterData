@@ -4,11 +4,12 @@ from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
 from tweepy import Stream
 
+from textblob import TextBlob
+
 import twitter_cred
 import numpy as np
 import pandas as pd
-# import matplotlib
-# matplotlib.use('Agg')
+import re
 from matplotlib import pyplot as plt
 
 class TwitterClient():
@@ -113,6 +114,15 @@ if __name__ == "__main__":
     print(np.max(df['retweets']))
 
     # Time Series
+    # time_likes = pd.Series(data=df['likes'].values, index=df['date'])
+    # time_likes.plot(figsize=(16, 4), color='r')
+    # plt.show()
+
     time_likes = pd.Series(data=df['likes'].values, index=df['date'])
-    time_likes.plot(figsize=(16, 4), color='r')
+    time_likes.plot(figsize=(16, 4), label="likes", legend=True)
+
+    time_retweets = pd.Series(data=df['retweets'].values, index=df['date'])
+    time_retweets.plot(figsize=(16, 4), label="retweets", legend=True)
+
     plt.show()
+    
