@@ -5,6 +5,7 @@ from tweepy import OAuthHandler
 from tweepy import Stream
 
 from textblob import TextBlob
+from wordcloud import WordCloud
 
 import twitter_cred
 import numpy as np
@@ -59,6 +60,26 @@ class TwitterStreamer():
         stream = Stream(auth, listener)
 
         stream.filter(track=hash_tag_list)
+    
+    def cleanText(self, text):
+        clean_text = re.sub(r"http\S+", "", text)
+        clean_text = re.sub(r'[^\x00-\x7F]+',' ', clean_text)
+        print(clean_text)
+        return clean_text
+
+    def saveTweetsAsFile(self, tweets, filename):
+        text = ""
+        for tweet in tweets:  
+            text = text + '\n' + self.cleanText(tweet.text)
+
+        try:
+            print(len(text))
+            with open(filename, 'a') as file:
+                file.write(text)
+            return True
+        except BaseException as e:
+            print("Error writing to file: %s" % str(e))
+        return True
 
 # # # # TWITTER STREAM LISTNER # # # #
 class TwitterListener(StreamListener):
@@ -108,14 +129,34 @@ class TweetAnalyzer():
 
         return df
 
+class TweetWordCloud():
+
+    def __init__(self, file):
+        self.text = open(file).read()
+
+    def generateCloud(self):
+        wordcloud = WordCloud().generate(self.text)
+        plt.imshow(wordcloud, interpolation='bilinear')
+        plt.axis("off")
+        plt.show()
+
 if __name__ == "__main__":
+
+    tweet_text_file = "tweet_text_200.txt"
+
     twitter_client = TwitterClient()
     tweet_analyzer = TweetAnalyzer()
+    tweet_streamer = TwitterStreamer()
+    
     api = twitter_client.get_twitter_client_api()
 
-    tweets = api.user_timeline(screen_name="realDonaldTrump", count=200)
-    
-    df = tweet_analyzer.tweets_to_data_frame(tweets)
+    tweets = api.user_timeline(screen_name="realDonaldTrump", count=1000)
+    tweet_streamer.saveTweetsAsFile(tweets, tweet_text_file)
+
+    tweet_word_cloud = TweetWordCloud(tweet_text_file)
+    tweet_word_cloud.generateCloud()
+
+    # df = tweet_analyzer.tweets_to_data_frame(tweets)
     # time_likes = pd.Series(data=df['likes'].values, index=df['date'])
     # time_likes.plot(figsize=(16, 4), label="likes", legend=True)
 
